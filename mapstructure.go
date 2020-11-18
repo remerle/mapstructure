@@ -239,6 +239,8 @@ type DecoderConfig struct {
 	// The tag name that mapstructure reads for field names. This
 	// defaults to "mapstructure"
 	TagName string
+
+	NameTransformFunc func(string) string
 }
 
 // A Decoder takes a raw interface value and turns it into structured
@@ -1281,6 +1283,10 @@ func (d *Decoder) decodeStructFromMap(name string, dataVal, val reflect.Value) e
 		tagValue = strings.SplitN(tagValue, ",", 2)[0]
 		if tagValue != "" {
 			fieldName = tagValue
+		} else {
+			if d.config.NameTransformFunc != nil {
+				fieldName = d.config.NameTransformFunc(fieldName)
+			}
 		}
 
 		rawMapKey := reflect.ValueOf(fieldName)
